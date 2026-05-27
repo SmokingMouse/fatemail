@@ -4,6 +4,7 @@ import { Shield, Share2, Clock, Code2, Mail } from "lucide-react"
 import { ActionButton } from "@/components/home/action-button"
 import { FeatureCard } from "@/components/home/feature-card"
 import { getTranslations } from "next-intl/server"
+import { getRequestContext } from "@cloudflare/next-on-pages"
 import type { Locale } from "@/i18n/config"
 
 export const runtime = "edge"
@@ -17,6 +18,7 @@ export default async function Home({
   const locale = localeFromParams as Locale
   const session = await auth()
   const t = await getTranslations({ locale, namespace: "home" })
+  const adminContact = (await getRequestContext().env.SITE_CONFIG.get("ADMIN_CONTACT")) || ""
 
   return (
     <div className="bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 min-h-screen">
@@ -65,11 +67,13 @@ export default async function Home({
                 <ActionButton isLoggedIn={!!session} />
               </div>
 
-              <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground pt-2">
-                <Mail className="w-3 h-3" />
-                <span>{t("contact")}</span>
-                <a href="mailto:riba2534@qq.com" className="text-primary hover:underline">riba2534@qq.com</a>
-              </div>
+              {adminContact && (
+                <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground pt-2">
+                  <Mail className="w-3 h-3" />
+                  <span>{t("contact")}</span>
+                  <a href={`mailto:${adminContact}`} className="text-primary hover:underline">{adminContact}</a>
+                </div>
+              )}
             </div>
           </div>
         </main>
@@ -77,4 +81,3 @@ export default async function Home({
     </div>
   )
 }
-
